@@ -41,6 +41,22 @@ const LeadsPage: React.FC = () => {
     website: "",
   });
 
+  const handleGenerateScore = async (leadId: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const updatedLead = await LeadService.generateLeadScore(leadId);
+      setLeads((prev) =>
+        prev.map((lead) => (lead.id === updatedLead.id ? updatedLead : lead))
+      );
+    } catch (err: any) {
+      setError(`Failed to generate score for lead ${leadId}`);
+      console.error("Generate score error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fetch leads when page or filters change
   useEffect(() => {
     const fetchLeads = async () => {
@@ -313,6 +329,14 @@ const LeadsPage: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {lead.score}
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => handleGenerateScore(lead.id)}
+                        disabled={loading}>
+                        Generate Score
+                      </button>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {new Date(lead.created_at).toLocaleDateString()}

@@ -25,6 +25,16 @@ export class LeadService {
     }
   }
 
+  static async generateLeadScore(leadId: number): Promise<Lead> {
+    try {
+      const response = await api.post<Lead>(`/api/v1/leads/${leadId}/score`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error generating lead score for lead ${leadId}:`, error);
+      throw error;
+    }
+  }
+
   static async createLead(leadData: LeadCreate): Promise<Lead> {
     try {
       const response = await api.post("/leads/", leadData);
