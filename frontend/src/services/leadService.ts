@@ -27,10 +27,15 @@ export class LeadService {
 
   static async generateLeadScore(leadId: number): Promise<Lead> {
     try {
-      const response = await api.post<Lead>(`/api/v1/leads/${leadId}/score`);
+      // For now, we'll simulate score generation by updating the lead
+      // Later we'll integrate with Grok API for real scoring
+      const randomScore = Math.floor(Math.random() * 100) + 1;
+      const response = await api.put(`/leads/${leadId}`, {
+        score: randomScore,
+      });
       return response.data;
     } catch (error) {
-      console.error(`Error generating lead score for lead ${leadId}:`, error);
+      console.error("Error generating lead score:", error);
       throw error;
     }
   }

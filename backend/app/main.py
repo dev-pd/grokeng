@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.core.database import connect_to_mysql, close_mysql_connection
-from app.api import leads
+from app.api import leads, grok
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -56,6 +56,7 @@ async def health_check():
 
 # Include API routers
 app.include_router(leads.router, prefix=f"{settings.API_V1_STR}/leads", tags=["leads"])
+app.include_router(grok.router, prefix=f"{settings.API_V1_STR}/grok", tags=["grok"])
 
 if __name__ == "__main__":
     import uvicorn

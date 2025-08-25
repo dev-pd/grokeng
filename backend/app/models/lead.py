@@ -8,9 +8,10 @@ from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
 
+
 class Lead(Base):
     __tablename__ = "leads"
-    
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
@@ -28,16 +29,19 @@ class Lead(Base):
     linkedin_url = Column(String(500))
     website = Column(String(500))
     created_at = Column(TIMESTAMP, server_default=func.now(), index=True)
-    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
-    
+    updated_at = Column(
+        TIMESTAMP, server_default=func.now(), onupdate=func.now())
+
     @property
     def full_name(self) -> str:
         return f"{self.first_name} {self.last_name}"
-    
+
     def __repr__(self):
         return f"<Lead(id={self.id}, name='{self.full_name}', email='{self.email}', status='{self.status}')>"
 
 # Pydantic models for API serialization
+
+
 class LeadBase(BaseModel):
     first_name: str
     last_name: str
@@ -53,12 +57,14 @@ class LeadBase(BaseModel):
     linkedin_url: Optional[str] = None
     website: Optional[str] = None
 
+
 class LeadCreate(LeadBase):
     @validator('email')
     def validate_email(cls, v):
         if not v or '@' not in v:
             raise ValueError('Valid email is required')
         return v.lower()
+
 
 class LeadUpdate(BaseModel):
     first_name: Optional[str] = None
@@ -75,6 +81,8 @@ class LeadUpdate(BaseModel):
     notes: Optional[str] = None
     linkedin_url: Optional[str] = None
     website: Optional[str] = None
+    score: Optional[float] = None
+
 
 class LeadResponse(LeadBase):
     id: int
@@ -82,9 +90,10 @@ class LeadResponse(LeadBase):
     score: Decimal
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
+
 
 class LeadListResponse(BaseModel):
     leads: List[LeadResponse]
@@ -92,4 +101,3 @@ class LeadListResponse(BaseModel):
     page: int
     per_page: int
     total_pages: int
-    
