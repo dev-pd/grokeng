@@ -1,0 +1,65 @@
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: grok-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootroot
+      MYSQL_DATABASE: grok_sdr
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-prootroot",
+        ]
+      timeout: 20s
+      retries: 10
+
+  # Backend API
+  backend:
+    build: ./backend
+    container_name: grok-backend
+    restart: unless-stopped
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: grok_sdr
+      MYSQL_USER: root
+      MYSQL_PASSWORD: rootroot
+      GROK_API_KEY: xai-I1wXucEXNdStVX7iVt6PkD5Lbt2GhcaVK9q399XDscL66pmnZhA64EU0APB0m3vhE6uTCJUZjQgijhSZ
+      GROK_API_URL: https://api.x.ai/v1
+      GROK_MODEL: grok-4-latest
+      API_V1_STR: /api/v1
+      PROJECT_NAME: "Grok SDR System"
+      DEBUG: true
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # Frontend
+  frontend:
+    build: ./frontend
+    container_name: grok-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
