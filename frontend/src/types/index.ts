@@ -100,3 +100,59 @@ export interface DashboardStats {
     avg_score: number;
   }>;
 }
+
+export interface GrokAnalysisResponse {
+  success: boolean;
+  lead_id: number;
+  lead_email: string;
+  analysis: {
+    overall_score: number;
+    qualification_status: string;
+    priority_level: string;
+    scoring_breakdown: {
+      title_score: number;
+      company_score: number;
+      industry_fit: number;
+      budget_alignment: number;
+    };
+    key_insights: string[];
+    recommended_approach: string;
+    next_steps: string[];
+    risk_factors: string[];
+    analyzed_at?: string;
+    lead_id?: number;
+    grok_version?: string;
+    error?: boolean;
+  };
+  message: string;
+}
+
+export interface GrokMessageResponse {
+  success: boolean;
+  lead_id: number;
+  lead_name: string;
+  company: string;
+  message: {
+    content: string;
+    subject: string;
+    message_type: string;
+    generated_for: string;
+    company: string;
+    personalization_level: string;
+    grok_generated: boolean;
+    error?: boolean;
+  };
+  generated_at: string;
+}
+
+export interface GrokQualificationResponse {
+  success: boolean;
+  lead_id: number;
+  previous_status: string;
+  new_score: number;
+  qualification_result: string;
+  priority_level: string;
+  key_insights: string[];
+  next_steps: string[];
+  analysis: any;
+}

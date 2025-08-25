@@ -5,6 +5,9 @@ import type {
   LeadCreate,
   PaginatedResponse,
   DashboardStats,
+  GrokAnalysisResponse, // Imported from types
+  GrokMessageResponse, // Imported from types
+  GrokQualificationResponse, // Imported from types
 } from "../types";
 
 export class LeadService {
@@ -25,17 +28,85 @@ export class LeadService {
     }
   }
 
+  // Updated method to use Grok API for lead analysis and scoring
   static async generateLeadScore(leadId: number): Promise<Lead> {
     try {
-      // For now, we'll simulate score generation by updating the lead
-      // Later we'll integrate with Grok API for real scoring
-      const randomScore = Math.floor(Math.random() * 100) + 1;
-      const response = await api.put(`/leads/${leadId}`, {
-        score: randomScore,
-      });
+      // Call the Grok analyze endpoint
+      const grokResponse = await api.post<GrokAnalysisResponse>(
+        `/grok/analyze-lead/${leadId}`
+      );
+
+      if (grokResponse.data.success && !grokResponse.data.analysis.error) {
+        // The lead score should already be updated in the backend
+        // Fetch the updated lead to return it
+        const updatedLead = await this.getLead(leadId);
+        return updatedLead;
+      } else {
+        throw new Error(grokResponse.data.message || "Grok analysis failed");
+      }
+    } catch (error: any) {
+      console.error("Error generating lead score with Grok:", error);
+      throw error;
+    }
+  }
+
+  // New method for getting detailed Grok analysis
+  static async analyzeLeadWithGrok(
+    leadId: number
+  ): Promise<GrokAnalysisResponse> {
+    try {
+      const response = await api.post<GrokAnalysisResponse>(
+        `/grok/analyze-lead/${leadId}`
+      );
       return response.data;
     } catch (error) {
-      console.error("Error generating lead score:", error);
+      console.error("Error analyzing lead with Grok:", error);
+      throw error;
+    }
+  }
+
+  // New method for generating personalized messages
+  static async generatePersonalizedMessage(
+    leadId: number,
+    messageType: "email" | "linkedin" | "call" | "meeting" = "email"
+  ): Promise<GrokMessageResponse> {
+    try {
+      const response = await api.post<GrokMessageResponse>(
+        `/grok/generate-message/${leadId}`,
+        null,
+        {
+          params: { message_type: messageType },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error generating personalized message:", error);
+      throw error;
+    }
+  }
+
+  // New method for auto-qualifying leads
+  static async autoQualifyLead(
+    leadId: number
+  ): Promise<GrokQualificationResponse> {
+    try {
+      const response = await api.post<GrokQualificationResponse>(
+        `/grok/qualify-lead/${leadId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error auto-qualifying lead:", error);
+      throw error;
+    }
+  }
+
+  // New method to test Grok connection
+  static async testGrokConnection(): Promise<any> {
+    try {
+      const response = await api.get("/grok/test-connection");
+      return response.data;
+    } catch (error) {
+      console.error("Error testing Grok connection:", error);
       throw error;
     }
   }
