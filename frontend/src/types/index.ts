@@ -1,3 +1,5 @@
+// frontend/src/types/index.ts
+
 export interface Lead {
   id: number;
   first_name: string;
@@ -78,7 +80,7 @@ export interface ApiResponse<T> {
 }
 
 export interface PaginatedResponse<T> {
-  items: T[];
+  leads: T[];
   total: number;
   page: number;
   per_page: number;
