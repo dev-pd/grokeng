@@ -1,4 +1,8 @@
 # backend/app/api/leads.py
+import os
+from openai import OpenAI  # Use OpenAI SDK for compatibility
+from dotenv import load_dotenv
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
@@ -7,8 +11,15 @@ from app.core.database import get_db_session
 from app.models.lead import Lead, LeadCreate, LeadUpdate, LeadResponse, LeadListResponse
 import logging
 
+load_dotenv()  # Load .env variables
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+# Initialize Grok client (using OpenAI SDK compatibility)
+grok_client = OpenAI(
+api_key=os.getenv("GROK_API_KEY"),
+base_url=os.getenv("GROK_API_BASE", "https://api.x.ai/v1")
+)
 
 @router.get("/", response_model=LeadListResponse)
 async def get_leads(
@@ -227,4 +238,102 @@ async def get_lead_stats(
         
     except Exception as e:
         logger.error(f"Error fetching lead stats: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@router.post("/{lead_id}/score", response_model=LeadResponse)
+async def generate_lead_score(
+    lead_id: int,
+    db: AsyncSession = Depends(get_db_session)
+):
+    """Generate a score for a lead using Grok API"""
+    try:
+        # Fetch the lead
+        query = select(Lead).where(Lead.id == lead_id)
+        result = await db.execute(query)
+        lead = result.scalar_one_or_none()
+        
+        if not lead:
+            raise HTTPException(status_code=404, detail="Lead not found")
+        
+        # Construct prompt with lead data
+        lead_data = f"""
+        Lead Details:
+        - Name: {lead.first_name} {lead.last_name}
+        - Email: {lead.email or 'N/A'}
+        - Company: {lead.company or 'N/A'}
+        - Title: {lead.title or 'N/A'}
+        - Phone: {lead.phone or 'N/A'}
+        - Industry: {lead.industry or 'N/A'}
+        - Company Size: {lead.company_size or 'N/A'}
+        - Budget Range: {lead.budget_range or 'N/A'}
+        - Status: {lead.status or 'N/A'}
+        - Lead Source: {lead.lead_source or 'N/A'}
+        - Notes: {lead.notes or 'N/A'}
+        - LinkedIn URL: {lead.linkedin_url or 'N/A'}
+        - Website: {lead.website or 'N/A'}
+        """
+        
+        prompt = f"""
+        You are an AI sales lead scorer. Analyze the following lead data and assign a score from 0 to 100 based on potential conversion likelihood.
+        Criteria:
+        - Senior titles (e.g., CTO, VP, Director: +20-30 points).
+        - High-value industries (Technology/Finance/Healthcare: +10-20 points).
+        - Larger company size (200+: +15, 51-200: +10, 11-50: +5).
+        - Higher budget range ($25k+: +15, $10k-$50k: +10, $5k-$25k: +5).
+        - Positive lead source (Referral: +10, LinkedIn: +5).
+        - Relevant notes (e.g., mentions AI/automation/CRM: +10-20).
+        - Overall fit for AI sales tools (based on company, title, notes).
+
+        Output ONLY the score as a number (e.g., 85). No explanations.
+        {lead_data}
+        """
+        
+        # Call Grok API (chat completion)
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    "https://api.x.ai/v1/chat/completions",
+                    headers={
+                        "Content-Type": "application/json",
+                        "Authorization": f"Bearer {os.getenv('GROK_API_KEY')}"
+                    },
+                    json={
+                        "messages": [
+                            {"role": "system", "content": "You are a lead scoring assistant."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        "model": "grok-3",
+                        "stream": False,
+                        "temperature": 0.5,
+                        "max_tokens": 4096
+                    }
+                )
+                response.raise_for_status()
+        except httpx.HTTPError as e:
+            logger.error(f"Grok API call failed for lead {lead_id}: {e}")
+            raise HTTPException(status_code=500, detail="Grok API call failed")
+        
+        # Parse the score
+        try:
+            score = float(response.json()["choices"][0]["message"]["content"].strip())
+            if not (0 <= score <= 100):
+                raise ValueError("Score out of valid range (0-100)")
+        except (ValueError, KeyError) as e:
+            logger.error(f"Invalid score from Grok API for lead {lead_id}: {e}")
+            raise HTTPException(status_code=500, detail="Invalid score from Grok API")
+        
+        # Update lead in DB
+        update_query = update(Lead).where(Lead.id == lead_id).values(score=score)
+        await db.execute(update_query)
+        await db.commit()
+        await db.refresh(lead)
+        
+        logger.info(f"Generated score {score} for lead {lead_id}")
+        return lead
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating score for lead {lead_id}: {e}")
+        await db.rollback()
         raise HTTPException(status_code=500, detail="Internal server error")
