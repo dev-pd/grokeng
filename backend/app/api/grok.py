@@ -32,11 +32,9 @@ async def analyze_lead_with_grok(
         # Optionally update the lead's score based on Grok analysis
         if not analysis.get("error", False):
             grok_score = analysis.get("overall_score", lead.score)
-
             if grok_score and grok_score > 0:
                 lead.score = grok_score
                 await db.commit()
-
                 await db.refresh(lead)
                 logger.info(
                     f"Updated lead {lead_id} score to {grok_score} based on Grok analysis"
