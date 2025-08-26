@@ -59,7 +59,6 @@ nox/
 # Dependency management
 Pipfile.lock
 poetry.lock
-requirements.txt
 requirements-dev.txt
 
 # Temporary files
