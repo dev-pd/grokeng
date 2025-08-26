@@ -32,8 +32,6 @@ uvicorn.log
 *.log
 
 # Alembic migrations
-alembic/versions/*.py  # Exclude specific migration files (optional, comment out if you want to track migrations)
-alembic.ini
 
 # Database
 *.sqlite3
@@ -92,3 +90,9 @@ docs/source/generated/
 *.gz
 *.zip
 *.tar.gz
+
+# UV package manager - keep uv.lock for reproducible builds
+
+# Environment files - keep .env.example, ignore actual .env
+.env
+!.env.example
