@@ -4,10 +4,11 @@ from sqlalchemy.sql import func
 from typing import Optional, Literal
 from app.core.database import Base
 
+
 # SQLAlchemy Model
 class Message(Base):
     __tablename__ = "messages"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     lead_id = Column(Integer, ForeignKey("leads.id"), nullable=False)
     message_type = Column(String, nullable=False)  # email, linkedin, call, meeting
@@ -22,6 +23,7 @@ class Message(Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
+
 # Pydantic Models
 class MessageCreate(BaseModel):
     lead_id: int
@@ -35,6 +37,7 @@ class MessageCreate(BaseModel):
     grok_generated: bool = False
     template_used: Optional[str] = None
 
+
 class MessageUpdate(BaseModel):
     lead_id: Optional[int] = None
     message_type: Optional[Literal["email", "linkedin", "call", "meeting"]] = None
@@ -46,6 +49,7 @@ class MessageUpdate(BaseModel):
     response_at: Optional[str] = None
     grok_generated: Optional[bool] = None
     template_used: Optional[str] = None
+
 
 class MessageResponse(BaseModel):
     id: int
@@ -64,6 +68,7 @@ class MessageResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 class MessageListResponse(BaseModel):
     messages: List[MessageResponse]

@@ -6,6 +6,7 @@ from app.core.config import settings
 from app.core.database import connect_to_mysql, close_mysql_connection
 from app.api import leads, grok
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
@@ -18,11 +19,12 @@ async def lifespan(app: FastAPI):
     print("🛑 Shutting down Grok SDR System...")
     await close_mysql_connection()
 
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version="1.0.0",
     description="Grok-powered Sales Development Representative System",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Set up CORS middleware
@@ -34,25 +36,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Health check endpoints
 @app.get("/")
 async def root():
     return {
-        "message": "Grok SDR System API is running!", 
+        "message": "Grok SDR System API is running!",
         "version": "1.0.0",
-        "status": "healthy"
+        "status": "healthy",
     }
+
 
 @app.get("/health")
 async def health_check():
     from app.core.database import check_database_health
+
     db_healthy = await check_database_health()
     return {
         "status": "healthy" if db_healthy else "unhealthy",
         "service": "grok-sdr-api",
         "database": "connected" if db_healthy else "disconnected",
-        "version": "1.0.0"
+        "version": "1.0.0",
     }
+
 
 # Include API routers
 app.include_router(leads.router, prefix=f"{settings.API_V1_STR}/leads", tags=["leads"])
@@ -60,4 +66,5 @@ app.include_router(grok.router, prefix=f"{settings.API_V1_STR}/grok", tags=["gro
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

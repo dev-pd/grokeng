@@ -11,20 +11,20 @@ logger = logging.getLogger(__name__)
 engine = create_async_engine(
     settings.DATABASE_URL,
     echo=settings.DEBUG,  # Log SQL queries in debug mode
-    pool_pre_ping=True,   # Verify connections before use
-    pool_recycle=300,     # Recycle connections every 5 minutes
+    pool_pre_ping=True,  # Verify connections before use
+    pool_recycle=300,  # Recycle connections every 5 minutes
 )
 
 # Create session factory
 AsyncSessionLocal = async_sessionmaker(
-    engine,
-    class_=AsyncSession,
-    expire_on_commit=False
+    engine, class_=AsyncSession, expire_on_commit=False
 )
+
 
 # Base class for all models
 class Base(DeclarativeBase):
     pass
+
 
 # Dependency to get database session
 async def get_db_session() -> AsyncSession:
@@ -37,6 +37,7 @@ async def get_db_session() -> AsyncSession:
             raise
         finally:
             await session.close()
+
 
 # Database connection management for app lifecycle
 async def connect_to_mysql():
@@ -51,6 +52,7 @@ async def connect_to_mysql():
         logger.error(f"❌ Failed to connect to MySQL database: {e}")
         return False
 
+
 async def close_mysql_connection():
     """Close database connection on app shutdown"""
     try:
@@ -58,6 +60,7 @@ async def close_mysql_connection():
         logger.info("✅ MySQL database connection closed")
     except Exception as e:
         logger.error(f"❌ Error closing MySQL database connection: {e}")
+
 
 # Health check function
 async def check_database_health() -> bool:

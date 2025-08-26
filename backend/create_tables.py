@@ -2,6 +2,7 @@
 """
 Script to create database tables and initialize sample data
 """
+
 import asyncio
 from app.core.database import engine, Base
 from app.models.lead import Lead
@@ -39,7 +40,7 @@ async def create_sample_data():
             "lead_source": "Referral",
             "notes": "Actively looking for AI-powered sales automation. Has budget approved. Timeline: Q1 2024. Previously used Salesforce but unhappy with limitations.",
             "linkedin_url": "https://linkedin.com/in/alexrodriguez-cto",
-            "website": "https://techgiant.com"
+            "website": "https://techgiant.com",
         },
         {
             "first_name": "David",
@@ -54,9 +55,8 @@ async def create_sample_data():
             "lead_source": "Conference",
             "notes": "Series B startup, 10x growth last year. Desperately needs lead scoring and automation. Decision maker, ready to buy.",
             "linkedin_url": "https://linkedin.com/in/davidkim-vpsales",
-            "website": "https://unicorn-startup.io"
+            "website": "https://unicorn-startup.io",
         },
-
         # MEDIUM-QUALITY LEADS (Should score 50-79)
         {
             "first_name": "Jennifer",
@@ -69,7 +69,7 @@ async def create_sample_data():
             "company_size": "201-1000",
             "budget_range": "$25,000-$50,000",
             "lead_source": "Website",
-            "notes": "Exploring CRM options. Not urgent but interested in automation features."
+            "notes": "Exploring CRM options. Not urgent but interested in automation features.",
         },
         {
             "first_name": "Robert",
@@ -82,9 +82,8 @@ async def create_sample_data():
             "company_size": "11-50",
             "budget_range": "$10,000-$25,000",
             "lead_source": "LinkedIn",
-            "notes": "Small consulting firm, interested in client management tools"
+            "notes": "Small consulting firm, interested in client management tools",
         },
-
         # LOW-QUALITY LEADS (Should score 0-49)
         {
             "first_name": "Student",
@@ -97,7 +96,7 @@ async def create_sample_data():
             "company_size": "1000+",
             "budget_range": "Under $5,000",
             "lead_source": "Website",
-            "notes": "Doing research on CRM systems for thesis project"
+            "notes": "Doing research on CRM systems for thesis project",
         },
         {
             "first_name": "Mark",
@@ -110,9 +109,8 @@ async def create_sample_data():
             "company_size": "1-10",
             "budget_range": "Under $5,000",
             "lead_source": "Cold Outreach",
-            "notes": "Solo freelancer, just browsing options"
+            "notes": "Solo freelancer, just browsing options",
         },
-
         # EDGE CASES & TESTING SCENARIOS
         {
             "first_name": "María José",
@@ -125,7 +123,7 @@ async def create_sample_data():
             "company_size": "201-1000",
             "budget_range": "$25,000-$50,000",
             "lead_source": "Trade Show",
-            "notes": "International prospect from Mexico. Spanish-speaking market. High potential but language barrier considerations."
+            "notes": "International prospect from Mexico. Spanish-speaking market. High potential but language barrier considerations.",
         },
         {
             "first_name": "李",
@@ -138,7 +136,7 @@ async def create_sample_data():
             "company_size": "201-1000",
             "budget_range": "$50,000-$100,000",
             "lead_source": "Partner Referral",
-            "notes": "Chinese market entry opportunity. Cultural considerations important."
+            "notes": "Chinese market entry opportunity. Cultural considerations important.",
         },
         {
             "first_name": "",
@@ -151,7 +149,7 @@ async def create_sample_data():
             "company_size": "",
             "budget_range": "",
             "lead_source": "Website",
-            "notes": "Possible bot/automated submission. Very minimal information provided."
+            "notes": "Possible bot/automated submission. Very minimal information provided.",
         },
         {
             "first_name": "Dr. Elizabeth",
@@ -164,9 +162,8 @@ async def create_sample_data():
             "company_size": "1000+",
             "budget_range": "$100,000+",
             "lead_source": "Medical Conference",
-            "notes": "Extremely long names and titles. Healthcare compliance requirements. HIPAA considerations for CRM implementation."
+            "notes": "Extremely long names and titles. Healthcare compliance requirements. HIPAA considerations for CRM implementation.",
         },
-
         # COMPETITOR INTELLIGENCE
         {
             "first_name": "Jane",
@@ -179,9 +176,8 @@ async def create_sample_data():
             "company_size": "51-200",
             "budget_range": "$25,000-$50,000",
             "lead_source": "Website",
-            "notes": "Works at a direct competitor. Possibly doing competitive research."
+            "notes": "Works at a direct competitor. Possibly doing competitive research.",
         },
-
         # BUDGET MISMATCHES
         {
             "first_name": "Small",
@@ -194,7 +190,7 @@ async def create_sample_data():
             "company_size": "1-10",
             "budget_range": "Under $5,000",
             "lead_source": "Google Search",
-            "notes": "Very small business with unrealistic expectations for enterprise features"
+            "notes": "Very small business with unrealistic expectations for enterprise features",
         },
         {
             "first_name": "Enterprise",
@@ -207,9 +203,8 @@ async def create_sample_data():
             "company_size": "1000+",
             "budget_range": "$500,000+",
             "lead_source": "RFP Process",
-            "notes": "Complex procurement process. Not the decision maker, just gathering information for RFP."
+            "notes": "Complex procurement process. Not the decision maker, just gathering information for RFP.",
         },
-
         # TIMING ISSUES
         {
             "first_name": "Future",
@@ -222,7 +217,7 @@ async def create_sample_data():
             "company_size": "51-200",
             "budget_range": "$50,000-$100,000",
             "lead_source": "Industry Report",
-            "notes": "Interested but timeline is 2025-2026. Very early in evaluation process."
+            "notes": "Interested but timeline is 2025-2026. Very early in evaluation process.",
         },
         {
             "first_name": "Urgent",
@@ -235,9 +230,8 @@ async def create_sample_data():
             "company_size": "11-50",
             "budget_range": "$25,000-$50,000",
             "lead_source": "Emergency Search",
-            "notes": "Current CRM system failed. Needs replacement ASAP. High urgency but may make hasty decisions."
+            "notes": "Current CRM system failed. Needs replacement ASAP. High urgency but may make hasty decisions.",
         },
-
         # SUSPICIOUS/FRAUD PATTERNS
         {
             "first_name": "Fake",
@@ -250,9 +244,8 @@ async def create_sample_data():
             "company_size": "1000+",
             "budget_range": "$1,000,000+",
             "lead_source": "Cold Email",
-            "notes": "Suspicious domain, unrealistic budget, generic information. Possible fraud attempt."
+            "notes": "Suspicious domain, unrealistic budget, generic information. Possible fraud attempt.",
         },
-
         # EXISTING CUSTOMER SCENARIOS
         {
             "first_name": "Current",
@@ -265,9 +258,8 @@ async def create_sample_data():
             "company_size": "201-1000",
             "budget_range": "$50,000-$100,000",
             "lead_source": "Customer Referral",
-            "notes": "Already our customer but different department. Expansion opportunity."
+            "notes": "Already our customer but different department. Expansion opportunity.",
         },
-
         # INDUSTRY-SPECIFIC EDGE CASES
         {
             "first_name": "Government",
@@ -280,7 +272,7 @@ async def create_sample_data():
             "company_size": "1000+",
             "budget_range": "$100,000+",
             "lead_source": "Government Portal",
-            "notes": "Government sector. Complex procurement rules, long sales cycles, compliance requirements."
+            "notes": "Government sector. Complex procurement rules, long sales cycles, compliance requirements.",
         },
         {
             "first_name": "Non",
@@ -293,9 +285,8 @@ async def create_sample_data():
             "company_size": "11-50",
             "budget_range": "$5,000-$10,000",
             "lead_source": "Grant Program",
-            "notes": "Non-profit organization. Limited budget but stable funding. Different decision-making process."
+            "notes": "Non-profit organization. Limited budget but stable funding. Different decision-making process.",
         },
-
         # TECHNICAL DECISION MAKERS
         {
             "first_name": "Technical",
@@ -308,9 +299,8 @@ async def create_sample_data():
             "company_size": "51-200",
             "budget_range": "$75,000-$150,000",
             "lead_source": "GitHub",
-            "notes": "Highly technical buyer. Will ask detailed API questions. Influences but doesn't control budget."
+            "notes": "Highly technical buyer. Will ask detailed API questions. Influences but doesn't control budget.",
         },
-
         # RE-ENGAGEMENT SCENARIOS
         {
             "first_name": "Lost",
@@ -323,14 +313,15 @@ async def create_sample_data():
             "company_size": "201-1000",
             "budget_range": "$100,000+",
             "lead_source": "Re-engagement Campaign",
-            "notes": "Previously engaged 6 months ago but went with competitor. Now reconsidering due to issues with current solution."
-        }
+            "notes": "Previously engaged 6 months ago but went with competitor. Now reconsidering due to issues with current solution.",
+        },
     ]
 
     async with AsyncSessionLocal() as session:
         for lead_data in sample_leads:
             # Check if lead already exists
             from sqlalchemy import select
+
             result = await session.execute(
                 select(Lead).where(Lead.email == lead_data["email"])
             )
@@ -359,6 +350,7 @@ async def main():
     except Exception as e:
         print(f"❌ Error initializing database: {e}")
         raise
+
 
 if __name__ == "__main__":
     asyncio.run(main())

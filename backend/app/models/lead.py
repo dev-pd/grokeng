@@ -27,10 +27,10 @@ class Lead(Base):
     lead_source = Column(String(100))
     notes = Column(Text)
     linkedin_url = Column(String(500))
+
     website = Column(String(500))
     created_at = Column(TIMESTAMP, server_default=func.now(), index=True)
-    updated_at = Column(
-        TIMESTAMP, server_default=func.now(), onupdate=func.now())
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
     @property
     def full_name(self) -> str:
@@ -38,6 +38,7 @@ class Lead(Base):
 
     def __repr__(self):
         return f"<Lead(id={self.id}, name='{self.full_name}', email='{self.email}', status='{self.status}')>"
+
 
 # Pydantic models for API serialization
 
@@ -59,10 +60,10 @@ class LeadBase(BaseModel):
 
 
 class LeadCreate(LeadBase):
-    @validator('email')
+    @validator("email")
     def validate_email(cls, v):
-        if not v or '@' not in v:
-            raise ValueError('Valid email is required')
+        if not v or "@" not in v:
+            raise ValueError("Valid email is required")
         return v.lower()
 
 

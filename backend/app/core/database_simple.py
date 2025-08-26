@@ -20,9 +20,11 @@ engine = create_engine(
 # Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
 # Base class for all models
 class Base(DeclarativeBase):
     pass
+
 
 # Dependency to get database session
 def get_db_session():
@@ -36,6 +38,7 @@ def get_db_session():
     finally:
         db.close()
 
+
 # Simple connection test
 def test_connection():
     """Test database connection"""
@@ -47,4 +50,3 @@ def test_connection():
     except Exception as e:
         logger.error(f"❌ Database connection failed: {e}")
         return False
-    

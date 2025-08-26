@@ -14,8 +14,7 @@ router = APIRouter()
 
 @router.post("/analyze-lead/{lead_id}")
 async def analyze_lead_with_grok(
-    lead_id: int,
-    db: AsyncSession = Depends(get_db_session)
+    lead_id: int, db: AsyncSession = Depends(get_db_session)
 ) -> Dict[str, Any]:
     """Analyze a lead using Grok AI and return comprehensive insights"""
     try:
@@ -33,19 +32,22 @@ async def analyze_lead_with_grok(
         # Optionally update the lead's score based on Grok analysis
         if not analysis.get("error", False):
             grok_score = analysis.get("overall_score", lead.score)
+
             if grok_score and grok_score > 0:
                 lead.score = grok_score
                 await db.commit()
+
                 await db.refresh(lead)
                 logger.info(
-                    f"Updated lead {lead_id} score to {grok_score} based on Grok analysis")
+                    f"Updated lead {lead_id} score to {grok_score} based on Grok analysis"
+                )
 
         return {
             "success": True,
             "lead_id": lead_id,
             "lead_email": lead.email,
             "analysis": analysis,
-            "message": "Lead analysis completed successfully"
+            "message": "Lead analysis completed successfully",
         }
 
     except HTTPException:
@@ -59,7 +61,7 @@ async def analyze_lead_with_grok(
 async def generate_personalized_message(
     lead_id: int,
     message_type: str = "email",
-    db: AsyncSession = Depends(get_db_session)
+    db: AsyncSession = Depends(get_db_session),
 ) -> Dict[str, Any]:
     """Generate a personalized message for a lead using Grok AI"""
     try:
@@ -68,7 +70,7 @@ async def generate_personalized_message(
         if message_type not in valid_types:
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid message type. Must be one of: {', '.join(valid_types)}"
+                detail=f"Invalid message type. Must be one of: {', '.join(valid_types)}",
             )
 
         # Fetch the lead
@@ -80,10 +82,7 @@ async def generate_personalized_message(
             raise HTTPException(status_code=404, detail="Lead not found")
 
         # Generate message with Grok
-        message_data = await GrokService.generate_outreach_message(
-            lead,
-            message_type
-        )
+        message_data = await GrokService.generate_outreach_message(lead, message_type)
 
         return {
             "success": True,
@@ -91,21 +90,19 @@ async def generate_personalized_message(
             "lead_name": f"{lead.first_name} {lead.last_name}",
             "company": lead.company,
             "message": message_data,
-            "generated_at": "now"
+            "generated_at": "now",
         }
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error generating message for lead {lead_id}: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to generate message")
+        raise HTTPException(status_code=500, detail="Failed to generate message")
 
 
 @router.post("/qualify-lead/{lead_id}")
 async def auto_qualify_lead(
-    lead_id: int,
-    db: AsyncSession = Depends(get_db_session)
+    lead_id: int, db: AsyncSession = Depends(get_db_session)
 ) -> Dict[str, Any]:
     """Auto-qualify a lead using Grok AI analysis"""
     try:
@@ -122,8 +119,7 @@ async def auto_qualify_lead(
 
         if not analysis.get("error", False):
             # Update lead based on Grok recommendations
-            recommended_status = GrokService.extract_recommended_status(
-                analysis)
+            recommended_status = GrokService.extract_recommended_status(analysis)
             grok_score = analysis.get("overall_score", lead.score)
 
             # Update the lead
@@ -135,7 +131,8 @@ async def auto_qualify_lead(
             await db.refresh(lead)
 
             logger.info(
-                f"Auto-qualified lead {lead_id}: status={lead.status}, score={lead.score}")
+                f"Auto-qualified lead {lead_id}: status={lead.status}, score={lead.score}"
+            )
 
         return {
             "success": True,
@@ -146,7 +143,7 @@ async def auto_qualify_lead(
             "priority_level": analysis.get("priority_level"),
             "key_insights": analysis.get("key_insights", []),
             "next_steps": analysis.get("next_steps", []),
-            "analysis": analysis
+            "analysis": analysis,
         }
 
     except HTTPException:
@@ -169,7 +166,7 @@ def test_grok_connection() -> Dict[str, Any]:
             "last_name": "User",
             "company": "Test Company",
             "title": "Manager",
-            "industry": "Technology"
+            "industry": "Technology",
         }
 
         analysis = grok_client.analyze_lead(test_data)
@@ -179,7 +176,7 @@ def test_grok_connection() -> Dict[str, Any]:
             "message": "Grok API connection successful",
             "test_analysis": analysis,
             "api_url": grok_client.api_url,
-            "model": grok_client.model
+            "model": grok_client.model,
         }
 
     except Exception as e:
@@ -188,5 +185,5 @@ def test_grok_connection() -> Dict[str, Any]:
             "success": False,
             "message": "Grok API connection failed",
             "error": str(e),
-            "api_url": grok_client.api_url if 'grok_client' in locals() else 'Unknown'
+            "api_url": grok_client.api_url if "grok_client" in locals() else "Unknown",
         }

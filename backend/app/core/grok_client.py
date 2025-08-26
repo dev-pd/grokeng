@@ -16,7 +16,7 @@ class GrokClient:
         self.model = settings.GROK_MODEL
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
         # Debug logging
@@ -36,12 +36,7 @@ class GrokClient:
             logger.info(f"Making Grok API request to: {endpoint}")
             logger.debug(f"Request data: {data}")
 
-            response = requests.post(
-                url,
-                json=data,
-                headers=self.headers,
-                timeout=30
-            )
+            response = requests.post(url, json=data, headers=self.headers, timeout=30)
 
             response.raise_for_status()
             result = response.json()
@@ -67,16 +62,13 @@ class GrokClient:
                 "messages": [
                     {
                         "role": "system",
-                        "content": "You are an expert sales development representative with deep knowledge of lead qualification, scoring, and sales processes. Analyze leads objectively and provide actionable insights."
+                        "content": "You are an expert sales development representative with deep knowledge of lead qualification, scoring, and sales processes. Analyze leads objectively and provide actionable insights.",
                     },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
+                    {"role": "user", "content": prompt},
                 ],
                 "temperature": 0.3,  # Lower temperature for more consistent scoring
                 "max_tokens": 1000,
-                "stream": False
+                "stream": False,
             }
 
             result = self._make_request("chat/completions", data)
@@ -97,15 +89,14 @@ class GrokClient:
         """Create a detailed prompt for lead analysis"""
 
         # Extract relevant lead information
-        name = f"{lead_data.get('first_name', '')} {lead_data.get('last_name', '')}".strip(
-        )
-        company = lead_data.get('company', 'Unknown')
-        title = lead_data.get('title', 'Unknown')
-        industry = lead_data.get('industry', 'Unknown')
-        company_size = lead_data.get('company_size', 'Unknown')
-        budget_range = lead_data.get('budget_range', 'Unknown')
-        lead_source = lead_data.get('lead_source', 'Unknown')
-        notes = lead_data.get('notes', 'No additional notes')
+        name = f"{lead_data.get('first_name', '')} {lead_data.get('last_name', '')}".strip()
+        company = lead_data.get("company", "Unknown")
+        title = lead_data.get("title", "Unknown")
+        industry = lead_data.get("industry", "Unknown")
+        company_size = lead_data.get("company_size", "Unknown")
+        budget_range = lead_data.get("budget_range", "Unknown")
+        lead_source = lead_data.get("lead_source", "Unknown")
+        notes = lead_data.get("notes", "No additional notes")
 
         prompt = f"""
 Analyze the following sales lead and provide a comprehensive assessment:
@@ -167,14 +158,13 @@ Be thorough but concise in your analysis.
             import re
 
             # Try to extract JSON from the response
-            json_match = re.search(r'\{.*\}', content, re.DOTALL)
+            json_match = re.search(r"\{.*\}", content, re.DOTALL)
             if json_match:
                 json_str = json_match.group()
                 return json.loads(json_str)
             else:
                 # If no valid JSON found, create a basic structure
-                logger.warning(
-                    "Could not parse Grok response as JSON, using fallback")
+                logger.warning("Could not parse Grok response as JSON, using fallback")
                 return self._get_fallback_analysis()
 
         except Exception as e:
@@ -191,32 +181,29 @@ Be thorough but concise in your analysis.
                 "title_score": 50,
                 "company_score": 50,
                 "industry_fit": 50,
-                "budget_alignment": 50
+                "budget_alignment": 50,
             },
             "key_insights": [
                 "Lead requires manual review",
-                "Grok AI analysis unavailable"
+                "Grok AI analysis unavailable",
             ],
             "recommended_approach": "Manual qualification recommended",
-            "next_steps": [
-                "Review lead manually",
-                "Schedule discovery call"
-            ],
-            "risk_factors": [
-                "AI analysis unavailable"
-            ]
+            "next_steps": ["Review lead manually", "Schedule discovery call"],
+            "risk_factors": ["AI analysis unavailable"],
         }
 
-    def generate_personalized_message(self, lead_data: Dict[str, Any], message_type: str = "email") -> str:
+    def generate_personalized_message(
+        self, lead_data: Dict[str, Any], message_type: str = "email"
+    ) -> str:
         """Generate a personalized outreach message"""
         try:
             prompt = f"""
 Create a personalized {message_type} message for this sales lead:
 
-Lead: {lead_data.get('first_name', '')} {lead_data.get('last_name', '')}
-Company: {lead_data.get('company', 'their company')}
-Title: {lead_data.get('title', 'their role')}
-Industry: {lead_data.get('industry', 'their industry')}
+Lead: {lead_data.get("first_name", "")} {lead_data.get("last_name", "")}
+Company: {lead_data.get("company", "their company")}
+Title: {lead_data.get("title", "their role")}
+Industry: {lead_data.get("industry", "their industry")}
 
 Requirements:
 - Professional but friendly tone
@@ -234,16 +221,13 @@ Generate only the message content, no subject line or signatures.
                 "messages": [
                     {
                         "role": "system",
-                        "content": "You are an expert sales writer who creates compelling, personalized outreach messages that get responses. Focus on value and relevance."
+                        "content": "You are an expert sales writer who creates compelling, personalized outreach messages that get responses. Focus on value and relevance.",
                     },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
+                    {"role": "user", "content": prompt},
                 ],
                 "temperature": 0.7,
                 "max_tokens": 300,
-                "stream": False
+                "stream": False,
             }
 
             result = self._make_request("chat/completions", data)

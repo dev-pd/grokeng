@@ -28,29 +28,29 @@ class GrokService:
                 "notes": lead.notes,
                 "phone": lead.phone,
                 "linkedin_url": lead.linkedin_url,
-                "website": lead.website
+                "website": lead.website,
             }
 
-            logger.info(
-                f"Analyzing lead {lead.id} ({lead.email}) with Grok AI")
+            logger.info(f"Analyzing lead {lead.id} ({lead.email}) with Grok AI")
 
             # Get Grok analysis
             analysis = grok_client.analyze_lead(lead_data)
 
             # Add metadata about the analysis
-            analysis["analyzed_at"] = lead.updated_at.isoformat(
-            ) if lead.updated_at else None
+            analysis["analyzed_at"] = (
+                lead.updated_at.isoformat() if lead.updated_at else None
+            )
             analysis["lead_id"] = lead.id
             analysis["grok_version"] = "grok-4-latest"
 
             logger.info(
-                f"Grok analysis complete for lead {lead.id}. Score: {analysis.get('overall_score', 'N/A')}")
+                f"Grok analysis complete for lead {lead.id}. Score: {analysis.get('overall_score', 'N/A')}"
+            )
 
             return analysis
 
         except Exception as e:
-            logger.error(
-                f"Error in Grok lead analysis for lead {lead.id}: {e}")
+            logger.error(f"Error in Grok lead analysis for lead {lead.id}: {e}")
             # Return a basic fallback analysis
             return {
                 "overall_score": 25,
@@ -60,25 +60,22 @@ class GrokService:
                     "title_score": 0,
                     "company_score": 0,
                     "industry_fit": 0,
-                    "budget_alignment": 0
+                    "budget_alignment": 0,
                 },
                 "key_insights": [
                     "AI analysis failed - manual review required",
-                    f"Error: {str(e)[:100]}..."
+                    f"Error: {str(e)[:100]}...",
                 ],
                 "recommended_approach": "Manual qualification required due to analysis error",
-                "next_steps": [
-                    "Review lead manually",
-                    "Check Grok API connection"
-                ],
-                "risk_factors": [
-                    "AI analysis unavailable"
-                ],
-                "error": True
+                "next_steps": ["Review lead manually", "Check Grok API connection"],
+                "risk_factors": ["AI analysis unavailable"],
+                "error": True,
             }
 
     @staticmethod
-    async def generate_outreach_message(lead: Lead, message_type: str = "email", context: str = "") -> Dict[str, Any]:
+    async def generate_outreach_message(
+        lead: Lead, message_type: str = "email", context: str = ""
+    ) -> Dict[str, Any]:
         """Generate personalized outreach message for a lead"""
         try:
             lead_data = {
@@ -89,15 +86,13 @@ class GrokService:
                 "industry": lead.industry,
                 "company_size": lead.company_size,
                 "notes": lead.notes,
-                "lead_source": lead.lead_source
+                "lead_source": lead.lead_source,
             }
 
-            logger.info(
-                f"Generating {message_type} message for lead {lead.id}")
+            logger.info(f"Generating {message_type} message for lead {lead.id}")
 
             message_content = await grok_client.generate_personalized_message(
-                lead_data,
-                message_type
+                lead_data, message_type
             )
 
             # Generate a subject line for emails
@@ -112,7 +107,7 @@ class GrokService:
                 "generated_for": f"{lead.first_name} {lead.last_name}",
                 "company": lead.company,
                 "personalization_level": "high",
-                "grok_generated": True
+                "grok_generated": True,
             }
 
             logger.info(f"Message generated successfully for lead {lead.id}")
@@ -129,7 +124,7 @@ class GrokService:
                 "company": lead.company,
                 "personalization_level": "basic",
                 "grok_generated": False,
-                "error": True
+                "error": True,
             }
 
     @staticmethod
@@ -139,8 +134,8 @@ class GrokService:
             prompt = f"""
 Generate a compelling email subject line for a sales outreach to:
 - {lead.first_name} {lead.last_name}
-- {lead.title or 'Professional'} at {lead.company or 'their company'}
-- Industry: {lead.industry or 'Unknown'}
+- {lead.title or "Professional"} at {lead.company or "their company"}
+- Industry: {lead.industry or "Unknown"}
 
 Requirements:
 - Personal but professional
@@ -157,15 +152,12 @@ Generate only the subject line, nothing else.
                 "messages": [
                     {
                         "role": "system",
-                        "content": "You are an expert at writing email subject lines that get opened. Focus on curiosity and relevance."
+                        "content": "You are an expert at writing email subject lines that get opened. Focus on curiosity and relevance.",
                     },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
+                    {"role": "user", "content": prompt},
                 ],
                 "temperature": 0.8,
-                "max_tokens": 50
+                "max_tokens": 50,
             }
 
             result = await grok_client._make_request("chat/completions", data)
