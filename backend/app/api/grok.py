@@ -27,7 +27,7 @@ async def analyze_lead_with_grok(
             raise HTTPException(status_code=404, detail="Lead not found")
 
         # Analyze with Grok
-        analysis = GrokService.analyze_and_score_lead(lead)
+        analysis = await GrokService.analyze_and_score_lead(lead)
 
         # Optionally update the lead's score based on Grok analysis
         if not analysis.get("error", False):
@@ -152,7 +152,7 @@ async def auto_qualify_lead(
 
 
 @router.get("/test-connection")
-def test_grok_connection() -> Dict[str, Any]:
+async def test_grok_connection() -> Dict[str, Any]:
     """Test the Grok API connection"""
     try:
         # Import the grok_client directly
@@ -167,7 +167,7 @@ def test_grok_connection() -> Dict[str, Any]:
             "industry": "Technology",
         }
 
-        analysis = grok_client.analyze_lead(test_data)
+        analysis = await grok_client.analyze_lead(test_data)
 
         return {
             "success": True,

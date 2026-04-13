@@ -4,7 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.core.database import connect_to_mysql, close_mysql_connection
-from app.api import leads, grok
+from app.api import leads, grok, messages
+from app.core.grok_client import grok_client
 
 
 @asynccontextmanager
@@ -17,6 +18,7 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown
     print("🛑 Shutting down Grok SDR System...")
+    await grok_client.aclose()
     await close_mysql_connection()
 
 
@@ -63,6 +65,9 @@ async def health_check():
 # Include API routers
 app.include_router(leads.router, prefix=f"{settings.API_V1_STR}/leads", tags=["leads"])
 app.include_router(grok.router, prefix=f"{settings.API_V1_STR}/grok", tags=["grok"])
+app.include_router(
+    messages.router, prefix=f"{settings.API_V1_STR}/messages", tags=["messages"]
+)
 
 if __name__ == "__main__":
     import uvicorn

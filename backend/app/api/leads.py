@@ -1,16 +1,11 @@
-# backend/app/api/leads.py
-import os
-from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, HTTPException
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, desc
-from typing import List, Optional
+from sqlalchemy import select, func, desc, or_
+from typing import Optional
 from app.core.database import get_db_session
 from app.models.lead import Lead, LeadCreate, LeadUpdate, LeadResponse, LeadListResponse
 import logging
 
-load_dotenv()  # Load .env variables
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
@@ -41,10 +36,12 @@ async def get_leads(
         if search:
             search_term = f"%{search}%"
             query = query.where(
-                Lead.first_name.ilike(search_term)
-                | Lead.last_name.ilike(search_term)
-                | Lead.email.ilike(search_term)
-                | Lead.company.ilike(search_term)
+                or_(
+                    Lead.first_name.ilike(search_term),
+                    Lead.last_name.ilike(search_term),
+                    Lead.email.ilike(search_term),
+                    Lead.company.ilike(search_term),
+                )
             )
 
         # Get total count
@@ -58,10 +55,12 @@ async def get_leads(
         if search:
             search_term = f"%{search}%"
             count_query = count_query.where(
-                Lead.first_name.ilike(search_term)
-                | Lead.last_name.ilike(search_term)
-                | Lead.email.ilike(search_term)
-                | Lead.company.ilike(search_term)
+                or_(
+                    Lead.first_name.ilike(search_term),
+                    Lead.last_name.ilike(search_term),
+                    Lead.email.ilike(search_term),
+                    Lead.company.ilike(search_term),
+                )
             )
 
         total_result = await db.execute(count_query)

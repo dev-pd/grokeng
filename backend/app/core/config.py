@@ -1,17 +1,16 @@
-# backend/app/core/config.py
-from pydantic_settings import BaseSettings
 from typing import List
-import os
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     # API Settings
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "Grok SDR System"
-    DEBUG: bool = True
+    DEBUG: bool = False
 
     # Grok API Configuration
-    GROK_API_KEY: str = "xai-I1wXucEXNdStVX7iVt6PkD5Lbt2GhcaVK9q399XDscL66pmnZhA64EU0APB0m3vhE6uTCJUZjQgijhSZ"
+    GROK_API_KEY: str
     GROK_API_URL: str = "https://api.x.ai/v1"
     GROK_MODEL: str = "grok-4-latest"
 
@@ -20,7 +19,7 @@ class Settings(BaseSettings):
     MYSQL_PORT: int = 3306
     MYSQL_DATABASE: str = "grok_sdr"
     MYSQL_USER: str = "root"
-    MYSQL_PASSWORD: str = "rootroot"
+    MYSQL_PASSWORD: str
 
     @property
     def DATABASE_URL(self) -> str:
@@ -42,9 +41,11 @@ class Settings(BaseSettings):
         "decision_maker_level": 0.2,
     }
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        extra="ignore",
+    )
 
 
 settings = Settings()

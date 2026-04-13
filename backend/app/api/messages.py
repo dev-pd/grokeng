@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from typing import List, Optional
+from sqlalchemy import select, func, desc
+from typing import Optional
 from app.core.database import get_db_session
 from app.models.message import (
     Message,
@@ -13,7 +13,7 @@ from app.models.message import (
 import logging
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/messages", tags=["Messages"])
+router = APIRouter()
 
 
 @router.get("/", response_model=MessageListResponse)

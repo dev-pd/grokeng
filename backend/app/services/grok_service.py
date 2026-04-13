@@ -11,7 +11,7 @@ class GrokService:
     """Service for Grok AI operations on leads"""
 
     @staticmethod
-    def analyze_and_score_lead(lead: Lead) -> Dict[str, Any]:
+    async def analyze_and_score_lead(lead: Lead) -> Dict[str, Any]:
         """Analyze a lead and return comprehensive scoring and insights"""
         try:
             # Prepare lead data for Grok analysis
@@ -34,7 +34,7 @@ class GrokService:
             logger.info(f"Analyzing lead {lead.id} ({lead.email}) with Grok AI")
 
             # Get Grok analysis
-            analysis = grok_client.analyze_lead(lead_data)
+            analysis = await grok_client.analyze_lead(lead_data)
 
             # Add metadata about the analysis
             analysis["analyzed_at"] = (
@@ -91,9 +91,7 @@ class GrokService:
 
             logger.info(f"Generating {message_type} message for lead {lead.id}")
 
-            message_content = await grok_client.generate_personalized_message(
-                lead_data, message_type
-            )
+            message_content = await grok_client.generate_personalized_message(lead_data, message_type)
 
             # Generate a subject line for emails
             subject = ""

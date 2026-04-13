@@ -1,7 +1,9 @@
-from pydantic import BaseModel
+from datetime import datetime
+from typing import List, Optional, Literal
+
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.sql import func
-from typing import Optional, Literal
 from app.core.database import Base
 
 
@@ -30,10 +32,10 @@ class MessageCreate(BaseModel):
     message_type: Literal["email", "linkedin", "call", "meeting"]
     subject: Optional[str] = None
     content: str
-    sent_at: Optional[str] = None
+    sent_at: Optional[datetime] = None
     response_received: bool = False
     response_content: Optional[str] = None
-    response_at: Optional[str] = None
+    response_at: Optional[datetime] = None
     grok_generated: bool = False
     template_used: Optional[str] = None
 
@@ -43,10 +45,10 @@ class MessageUpdate(BaseModel):
     message_type: Optional[Literal["email", "linkedin", "call", "meeting"]] = None
     subject: Optional[str] = None
     content: Optional[str] = None
-    sent_at: Optional[str] = None
+    sent_at: Optional[datetime] = None
     response_received: Optional[bool] = None
     response_content: Optional[str] = None
-    response_at: Optional[str] = None
+    response_at: Optional[datetime] = None
     grok_generated: Optional[bool] = None
     template_used: Optional[str] = None
 
@@ -57,17 +59,16 @@ class MessageResponse(BaseModel):
     message_type: str
     subject: Optional[str]
     content: str
-    sent_at: Optional[str]
+    sent_at: Optional[datetime]
     response_received: bool
     response_content: Optional[str]
-    response_at: Optional[str]
+    response_at: Optional[datetime]
     grok_generated: bool
     template_used: Optional[str]
-    created_at: str
-    updated_at: str
+    created_at: datetime
+    updated_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class MessageListResponse(BaseModel):

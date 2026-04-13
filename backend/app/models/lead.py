@@ -1,9 +1,8 @@
 # backend/app/models/lead.py
-from sqlalchemy import Column, Integer, String, Text, DECIMAL, TIMESTAMP, Boolean, Index
+from sqlalchemy import Column, Integer, String, Text, DECIMAL, TIMESTAMP
 from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
 from app.core.database import Base
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
@@ -60,11 +59,10 @@ class LeadBase(BaseModel):
 
 
 class LeadCreate(LeadBase):
-    @validator("email")
-    def validate_email(cls, v):
-        if not v or "@" not in v:
-            raise ValueError("Valid email is required")
-        return v.lower()
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v: EmailStr) -> EmailStr:
+        return EmailStr(v.lower())
 
 
 class LeadUpdate(BaseModel):
@@ -92,8 +90,7 @@ class LeadResponse(LeadBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class LeadListResponse(BaseModel):
