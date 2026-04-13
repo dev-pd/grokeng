@@ -1,22 +1,31 @@
-// frontend/src/services/api.ts
 import axios from "axios";
+import { getApiOrigin, getApiV1BaseUrl } from "../config/apiConfig";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+let inMemoryAuthToken: string | null = null;
 
-export const api = axios.create({
-  baseURL: `${API_BASE_URL}/api/v1`,
+export function setAuthToken(token: string | null) {
+  inMemoryAuthToken = token;
+}
+
+export const apiV1 = axios.create({
+  baseURL: getApiV1BaseUrl(),
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Request interceptor for adding auth tokens (if needed later)
-api.interceptors.request.use(
+export const apiRoot = axios.create({
+  baseURL: getApiOrigin(),
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Request interceptor for adding auth tokens (opt-in via setAuthToken)
+apiV1.interceptors.request.use(
   (config) => {
-    // Add auth token if available
-    const token = localStorage.getItem("auth_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (inMemoryAuthToken) {
+      config.headers.Authorization = `Bearer ${inMemoryAuthToken}`;
     }
     return config;
   },
@@ -26,7 +35,7 @@ api.interceptors.request.use(
 );
 
 // Response interceptor for handling errors globally
-api.interceptors.response.use(
+apiV1.interceptors.response.use(
   (response) => {
     return response;
   },
@@ -36,4 +45,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export default apiV1;

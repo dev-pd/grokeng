@@ -230,10 +230,9 @@ const LeadsPage: React.FC = () => {
   useEffect(() => {
     const count = Object.entries(filters).filter(([key, value]) => {
       if (key === "search") return value && value.length > 0;
-      return (
-        value &&
-        value !== `All ${key.charAt(0).toUpperCase() + key.slice(1)}s` &&
-        value !== "All Scores"
+      if (!value) return false;
+      return !["All Statuses", "All Industries", "All Sizes", "All Scores"].includes(
+        value
       );
     }).length;
     setActiveFiltersCount(count);
@@ -241,7 +240,10 @@ const LeadsPage: React.FC = () => {
 
   // Filter handlers
   const handleFilterChange = (key: string, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    const isAll = ["All Statuses", "All Industries", "All Sizes", "All Scores"].includes(
+      value
+    );
+    setFilters((prev) => ({ ...prev, [key]: isAll ? undefined : value }));
     setPage(1);
   };
 
@@ -436,7 +438,6 @@ const LeadsPage: React.FC = () => {
               <LeadsFilters
                 filters={filters}
                 onFilterChange={handleFilterChange}
-                onSearchChange={handleSearchChange}
                 onResetFilters={handleResetFilters}
               />
             </div>

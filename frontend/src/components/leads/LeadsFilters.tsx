@@ -8,17 +8,14 @@ interface LeadsFiltersProps {
     industry?: string;
     company_size?: string;
     score_range?: string;
-    search?: string;
   };
   onFilterChange: (key: string, value: string) => void;
-  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onResetFilters: () => void;
 }
 
 const LeadsFilters: React.FC<LeadsFiltersProps> = ({
   filters,
   onFilterChange,
-  onSearchChange,
   onResetFilters,
 }) => {
   return (
@@ -32,7 +29,7 @@ const LeadsFilters: React.FC<LeadsFiltersProps> = ({
           Reset Filters
         </button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label className="label">Status</label>
           <select
@@ -83,16 +80,6 @@ const LeadsFilters: React.FC<LeadsFiltersProps> = ({
             <option>Medium (50-79)</option>
             <option>Low (0-49)</option>
           </select>
-        </div>
-        <div>
-          <label className="label">Search</label>
-          <input
-            type="text"
-            className="input"
-            placeholder="Search by name, email, or company"
-            value={filters.search || ""}
-            onChange={onSearchChange}
-          />
         </div>
       </div>
     </div>

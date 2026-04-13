@@ -1,5 +1,5 @@
 // frontend/src/services/leadService.ts
-import { api } from "./api";
+import { apiRoot, apiV1 } from "./api";
 import type {
   Lead,
   LeadCreate,
@@ -18,9 +18,11 @@ export class LeadService {
     industry?: string;
     company_size?: string;
     search?: string;
-  }) {
+  }): Promise<PaginatedResponse<Lead>> {
     try {
-      const response = await api.get("/leads/", { params });
+      const response = await apiV1.get<PaginatedResponse<Lead>>("/leads/", {
+        params,
+      });
       return response.data;
     } catch (error) {
       console.error("Error fetching leads:", error);
@@ -32,7 +34,7 @@ export class LeadService {
   static async generateLeadScore(leadId: number): Promise<Lead> {
     try {
       // Call the Grok analyze endpoint
-      const grokResponse = await api.post<GrokAnalysisResponse>(
+      const grokResponse = await apiV1.post<GrokAnalysisResponse>(
         `/grok/analyze-lead/${leadId}`
       );
 
@@ -55,7 +57,7 @@ export class LeadService {
     leadId: number
   ): Promise<GrokAnalysisResponse> {
     try {
-      const response = await api.post<GrokAnalysisResponse>(
+      const response = await apiV1.post<GrokAnalysisResponse>(
         `/grok/analyze-lead/${leadId}`
       );
       return response.data;
@@ -71,7 +73,7 @@ export class LeadService {
     messageType: "email" | "linkedin" | "call" | "meeting" = "email"
   ): Promise<GrokMessageResponse> {
     try {
-      const response = await api.post<GrokMessageResponse>(
+      const response = await apiV1.post<GrokMessageResponse>(
         `/grok/generate-message/${leadId}`,
         null,
         {
@@ -90,7 +92,7 @@ export class LeadService {
     leadId: number
   ): Promise<GrokQualificationResponse> {
     try {
-      const response = await api.post<GrokQualificationResponse>(
+      const response = await apiV1.post<GrokQualificationResponse>(
         `/grok/qualify-lead/${leadId}`
       );
       return response.data;
@@ -101,9 +103,9 @@ export class LeadService {
   }
 
   // New method to test Grok connection
-  static async testGrokConnection(): Promise<any> {
+  static async testGrokConnection(): Promise<unknown> {
     try {
-      const response = await api.get("/grok/test-connection");
+      const response = await apiV1.get("/grok/test-connection");
       return response.data;
     } catch (error) {
       console.error("Error testing Grok connection:", error);
@@ -113,7 +115,7 @@ export class LeadService {
 
   static async createLead(leadData: LeadCreate): Promise<Lead> {
     try {
-      const response = await api.post("/leads/", leadData);
+      const response = await apiV1.post<Lead>("/leads/", leadData);
       return response.data;
     } catch (error) {
       console.error("Error creating lead:", error);
@@ -123,7 +125,7 @@ export class LeadService {
 
   static async getLead(id: number): Promise<Lead> {
     try {
-      const response = await api.get(`/leads/${id}`);
+      const response = await apiV1.get<Lead>(`/leads/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching lead:", error);
@@ -133,7 +135,7 @@ export class LeadService {
 
   static async updateLead(id: number, leadData: Partial<Lead>): Promise<Lead> {
     try {
-      const response = await api.put(`/leads/${id}`, leadData);
+      const response = await apiV1.put<Lead>(`/leads/${id}`, leadData);
       return response.data;
     } catch (error) {
       console.error("Error updating lead:", error);
@@ -143,16 +145,16 @@ export class LeadService {
 
   static async deleteLead(id: number): Promise<void> {
     try {
-      await api.delete(`/leads/${id}`);
+      await apiV1.delete(`/leads/${id}`);
     } catch (error) {
       console.error("Error deleting lead:", error);
       throw error;
     }
   }
 
-  static async getLeadStats() {
+  static async getLeadStats(): Promise<DashboardStats> {
     try {
-      const response = await api.get("/leads/stats/summary");
+      const response = await apiV1.get<DashboardStats>("/leads/stats/summary");
       return response.data;
     } catch (error) {
       console.error("Error fetching lead stats:", error);
@@ -160,11 +162,9 @@ export class LeadService {
     }
   }
 
-  static async checkApiHealth() {
+  static async checkApiHealth(): Promise<unknown> {
     try {
-      const response = await api.get("/health", {
-        baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
-      });
+      const response = await apiRoot.get("/health");
       return response.data;
     } catch (error) {
       console.error("API health check failed:", error);
